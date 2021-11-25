@@ -51,7 +51,7 @@ const test_tables = ["studies", "teaches", "judge"];
 test_tables.forEach((table) => {
   app.get("/" + table, async (req, res) => {
     try {
-      const { rows } = await db.query("SELECT * FROM mcms.$1", [table]);
+      const { rows } = await db.query("SELECT * FROM $1", ["mcms." + table]);
       res.status(200).send(rows);
     } catch (e) {
       res.send(e);
@@ -64,8 +64,8 @@ app.get("/:table", async (req, res) => {
     res.status(400).send("Bad request");
   }
   try {
-    const { rows } = await db.query("SELECT * FROM mcms.$1", [
-      req.params.table,
+    const { rows } = await db.query("SELECT * FROM $1", [
+      "mcms." + req.params.table,
     ]);
     res.status(200).send(rows);
   } catch (e) {
@@ -85,15 +85,26 @@ app.delete("/admin/:id", async (req, res) => {
   }
 });
 
-app.post("/admin/", async (req, res) => {
+app.post("/admin", async (req, res) => {
   try {
-    parseInt(req.body.admin_id);
-    console.log(req.body);
     const results = await db.query(
       "INSERT INTO mcms.admin (admin_id, name, phone_number) VALUES ($1, $2, $3)",
       [req.body.admin_id, req.body.name, req.body.phone_number]
     );
     res.send(results);
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.get("/student_schedule/:id", async (req, res) => {
+  try {
+    const { rows } = await db.query(
+      "SELECT * FROM mcms.show_student_schedule($1)",
+      [req.params.id]
+    );
+
+    res.send(rows);
   } catch (e) {
     res.send(e);
   }
