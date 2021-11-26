@@ -10,6 +10,7 @@ const port = process.env.PORT;
 app.use(express.json());
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, DELETE");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -118,8 +119,8 @@ app.get("/:table/raw", async (req, res) => {
   }
   try {
     const query = format("SELECT * FROM mcms.%I", req.params.table);
-    const { rows } = await db.query({ text: query, rowMode: "array" });
-    res.status(200).send(rows);
+    const result = await db.query({ text: query, rowMode: "array" });
+    res.status(200).send(result);
   } catch (e) {
     res.send(e);
   }
