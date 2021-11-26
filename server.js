@@ -37,12 +37,36 @@ app.get("/student_individual", async (req, res) => {
   }
 });
 
+app.get("/student_individual/raw", async (req, res) => {
+  try {
+    const result = await db.query({
+      text: "SELECT * FROM mcms.student NATURAL JOIN mcms.individual",
+      rowMode: "array",
+    });
+    res.send(result);
+  } catch (e) {
+    res.send(e);
+  }
+});
+
 app.get("/teacher_individual", async (req, res) => {
   try {
     const { rows } = await db.query(
       "SELECT * FROM mcms.teacher NATURAL JOIN mcms.individual"
     );
     res.send(rows);
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.get("/teacher_individual/raw", async (req, res) => {
+  try {
+    const result = await db.query({
+      text: "SELECT * FROM mcms.teacher NATURAL JOIN mcms.individual",
+      rowMode: "array",
+    });
+    res.send(result);
   } catch (e) {
     res.send(e);
   }
@@ -74,6 +98,19 @@ app.get("/:table", async (req, res) => {
   try {
     const query = format("SELECT * FROM mcms.%I", req.params.table);
     const { rows } = await db.query(query);
+    res.status(200).send(rows);
+  } catch (e) {
+    res.send(e);
+  }
+});
+
+app.get("/:table/raw", async (req, res) => {
+  if (tables.indexOf(req.params.table) == -1) {
+    res.status(400).send("Bad request");
+  }
+  try {
+    const query = format("SELECT * FROM mcms.%I", req.params.table);
+    const { rows } = await db.query({ text: query, rowMode: "array" });
     res.status(200).send(rows);
   } catch (e) {
     res.send(e);
